@@ -14,6 +14,16 @@ Instead, when using java beans, you also need to add and annotate fields. And if
 
 If you've just started with SteroidMap, its default implementation, [SMap](http://ffissore.github.io/SteroidMap/apidocs/index.html), has everything you need to play with it. And these are the only two classes of this project, in case you're wondering how much complex is it.
 
+## POM snippet
+
+```xml
+<dependency>
+  <groupId>org.fissore.steroids</groupId>
+  <artifactId>steroidmap</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
 ## Examples
 
 Here are some example usages. [Actual code available on github](https://github.com/ffissore/SteroidMap/blob/master/src/test/java/org/fissore/steroids/ExamplesTest.java#L13).
