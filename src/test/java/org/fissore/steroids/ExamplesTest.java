@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 public class ExamplesTest {
 
-  private SteroidMap<String> mymap;
+  private SMap mymap;
 
   @Before
   public void setUp() throws Exception {
@@ -87,7 +87,7 @@ public class ExamplesTest {
 
   @Test
   public void socialFriends() throws Exception {
-    List<SteroidMap<String>> friends = mymap
+    List<SMap> friends = mymap
         .maps("friends")
         .filter(friend -> friend.valued("social"))
         .collect(Collectors.toList());
@@ -97,12 +97,12 @@ public class ExamplesTest {
 
   @Test
   public void transformUserAndFriendsMaps() throws Exception {
-    List<SteroidMap<String>> friendsSubMaps = mymap
+    List<SMap> friendsSubMaps = mymap
         .maps("friends")
         .map(friend -> friend.subMap("name", "surname"))
         .collect(Collectors.toList());
 
-    SteroidMap<String> submap = mymap
+    SMap submap = mymap
         .subMap("name", "surname")
         .add("friends", friendsSubMaps);
 

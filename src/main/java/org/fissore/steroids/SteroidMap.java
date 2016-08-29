@@ -526,7 +526,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
     return defaultIfMissing(key, defaultValue, this::map);
   }
 
-  default Stream<SteroidMap<K>> maps(K key) {
+  default Stream<? extends SteroidMap<K>> maps(K key) {
     return stream(key).map(this::ensureMapIsOnSteroid);
   }
 

@@ -90,7 +90,7 @@ List<String> names = mymap
 
 ### Collecting friends with a social account
 ```java
-List<SteroidMap<String>> friends = mymap
+List<SMap> friends = mymap
     .maps("friends")
     .filter(friend -> friend.valued("social"))
     .collect(Collectors.toList());
@@ -98,12 +98,12 @@ List<SteroidMap<String>> friends = mymap
 
 ### Create a new map filtering mymap
 ```java
-List<SteroidMap<String>> friendsSubMaps = mymap
+List<SMap> friendsSubMaps = mymap
     .maps("friends")
     .map(friend -> friend.subMap("name", "surname"))
     .collect(Collectors.toList());
 
-SteroidMap<String> submap = mymap
+SMap submap = mymap
     .subMap("name", "surname")
     .add("friends", friendsSubMaps);
 ```

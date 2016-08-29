@@ -83,7 +83,7 @@ public class SMap implements SteroidMap<String> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public SteroidMap<String> subMap(Stream<String> keys) {
+  public SMap subMap(Stream<String> keys) {
     Map<String, Object> map = newInnerMapInstance();
     return subMap(map, keys);
   }
@@ -98,27 +98,107 @@ public class SMap implements SteroidMap<String> {
   }
 
   @Override
-  public SteroidMap<String> subMap(Map<String, Object> backingMap, Stream<String> keys) {
+  public SMap subMap(Map<String, Object> backingMap, Stream<String> keys) {
     SMap subMap = new SMap(backingMap);
     keys.forEach(key -> subMap.add(key, get(key)));
     return subMap;
   }
 
   @Override
-  public SteroidMap<String> map(String key) {
+  public SMap map(String key) {
     return ensureMapIsOnSteroid(get(key));
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public SteroidMap<String> ensureMapIsOnSteroid(Object value) {
-    if (value instanceof SteroidMap) {
-      return (SteroidMap<String>) value;
+  public SMap ensureMapIsOnSteroid(Object value) {
+    if (value instanceof SMap) {
+      return (SMap) value;
     }
     if (value instanceof Map) {
       return new SMap((Map<String, Object>) value);
     }
     throw new IllegalArgumentException(value + " is neither a Map or a SteroidMap");
+  }
+
+  @Override
+  public SMap add(String key, Object value) {
+    return (SMap) SteroidMap.super.add(key, value);
+  }
+
+  @Override
+  public SMap addAll(Map<String, Object>... sources) {
+    return (SMap) SteroidMap.super.addAll(sources);
+  }
+
+  @Override
+  public SMap addAll(Collection<Map<String, Object>> sources) {
+    return (SMap) SteroidMap.super.addAll(sources);
+  }
+
+  @Override
+  public SMap addAll(Stream<Map<String, Object>> sources) {
+    return (SMap) SteroidMap.super.addAll(sources);
+  }
+
+  @Override
+  public SMap addFrom(Map<String, Object> source, String... keys) {
+    return (SMap) SteroidMap.super.addFrom(source, keys);
+  }
+
+  @Override
+  public SMap addFrom(Map<String, Object> source, Collection<String> keys) {
+    return (SMap) SteroidMap.super.addFrom(source, keys);
+  }
+
+  @Override
+  public SMap renameKey(String oldKey, String newKey) {
+    return (SMap) SteroidMap.super.renameKey(oldKey, newKey);
+  }
+
+  @Override
+  public SMap del(String... keys) {
+    return (SMap) SteroidMap.super.del(keys);
+  }
+
+  @Override
+  public SMap del(Collection<String> keys) {
+    return (SMap) SteroidMap.super.del(keys);
+  }
+
+  @Override
+  public SMap del(Stream<String> keys) {
+    return (SMap) SteroidMap.super.del(keys);
+  }
+
+  @Override
+  public SMap subMap(String... keys) {
+    return (SMap) SteroidMap.super.subMap(keys);
+  }
+
+  @Override
+  public SMap subMap(Collection<String> keys) {
+    return (SMap) SteroidMap.super.subMap(keys);
+  }
+
+  @Override
+  public SMap subMap(Map<String, Object> backingMap, String... keys) {
+    return (SMap) SteroidMap.super.subMap(backingMap, keys);
+  }
+
+  @Override
+  public SMap subMap(Map<String, Object> backingMap, Collection<String> keys) {
+    return (SMap) SteroidMap.super.subMap(backingMap, keys);
+  }
+
+  @Override
+  public SMap map(String key, SteroidMap<String> defaultValue) {
+    return (SMap) SteroidMap.super.map(key, defaultValue);
+  }
+
+  @Override
+  public Stream<SMap> maps(String key) {
+    return SteroidMap.super.maps(key).map(s -> (SMap) s);
   }
 
   /* GENERATED DELEGATE METHODS */

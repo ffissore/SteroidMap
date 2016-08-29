@@ -24,8 +24,8 @@ public class SteroidMapTest {
   private Date date;
   private List<Integer> list;
   private HashSet<String> coll;
-  private SteroidMap<String> submap;
-  private SteroidMap<String> map;
+  private SMap submap;
+  private SMap map;
   private Map<String, Object> simpleMap;
 
   @Before
@@ -121,7 +121,7 @@ public class SteroidMapTest {
     other2.put("four", 4);
     other2.put("null", null);
 
-    SteroidMap<String> mergedMap = map.addAll(other1, other2);
+    SMap mergedMap = map.addAll(other1, other2);
     assertNotNull(mergedMap);
     assertTrue(mergedMap.containsKey("key1"));
     assertTrue(mergedMap.containsKey("one"));
@@ -142,7 +142,7 @@ public class SteroidMapTest {
     other2.put("four", 4);
     other2.put("null", null);
 
-    SteroidMap<String> mergedMap = map.addAll(Arrays.asList(other1, other2));
+    SMap mergedMap = map.addAll(Arrays.asList(other1, other2));
     assertNotNull(mergedMap);
     assertTrue(mergedMap.containsKey("key1"));
     assertTrue(mergedMap.containsKey("one"));
@@ -345,13 +345,13 @@ public class SteroidMapTest {
 
   @Test
   public void shouldReturnMaps() throws Exception {
-    List<SteroidMap<String>> maps = Arrays.asList(new SMap("key", "value1"), new SMap("key", "value2"));
+    List<SMap> maps = Arrays.asList(new SMap("key", "value1"), new SMap("key", "value2"));
     map.add("maps", maps);
 
-    List<SteroidMap<String>> maps1 = map.maps("maps").collect(Collectors.toList());
+    List<SMap> maps1 = map.maps("maps").collect(Collectors.toList());
     assertEquals(maps, maps1);
 
-    List<SteroidMap<String>> maps2 = map.maps("maps")
+    List<SMap> maps2 = map.maps("maps")
         .filter(map -> map.s("key").equals("value1"))
         .collect(Collectors.toList());
 
@@ -373,7 +373,7 @@ public class SteroidMapTest {
 
   @Test
   public void shouldReturnASubMapOfKeys() {
-    SteroidMap<String> listColl = map.subMap("list", "coll");
+    SMap listColl = map.subMap("list", "coll");
     assertEquals(2, listColl.size());
     assertTrue(listColl.valued("list"));
     assertTrue(listColl.valued("coll"));
@@ -381,7 +381,7 @@ public class SteroidMapTest {
 
   @Test
   public void shouldReturnASubMapOfCollectionOfKeys() {
-    SteroidMap<String> listColl = map.subMap(Arrays.asList("list", "coll"));
+    SMap listColl = map.subMap(Arrays.asList("list", "coll"));
     assertEquals(2, listColl.size());
     assertTrue(listColl.valued("list"));
     assertTrue(listColl.valued("coll"));
@@ -389,7 +389,7 @@ public class SteroidMapTest {
 
   @Test
   public void shouldReturnASubMapOfKeysWithSpecialMapImpl() {
-    SteroidMap<String> listColl = map.subMap(new ConcurrentHashMap<>(), "list", "coll");
+    SMap listColl = map.subMap(new ConcurrentHashMap<>(), "list", "coll");
     assertEquals(2, listColl.size());
     assertTrue(listColl.valued("list"));
     assertTrue(listColl.valued("coll"));
@@ -397,7 +397,7 @@ public class SteroidMapTest {
 
   @Test
   public void shouldReturnASubMapOfCollectionOfKeysWithSpecialMapImpl() {
-    SteroidMap<String> listColl = map.subMap(new ConcurrentHashMap<>(), Arrays.asList("list", "coll"));
+    SMap listColl = map.subMap(new ConcurrentHashMap<>(), Arrays.asList("list", "coll"));
     assertEquals(2, listColl.size());
     assertTrue(listColl.valued("list"));
     assertTrue(listColl.valued("coll"));
@@ -406,13 +406,6 @@ public class SteroidMapTest {
   @Test(expected = RuntimeException.class)
   public void shouldThrowExceptionWhenAttemptingToReturnASubMap() {
     new SMap(new PrivateMap()).subMap();
-
-
-    List<SteroidMap<String>> names = new SMap()
-        .maps("friends")
-        .filter(friend -> friend.valued("social"))
-        .collect(Collectors.toList());
-
   }
 
 }
