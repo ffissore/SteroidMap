@@ -44,8 +44,8 @@ public class ExamplesTest {
         .add("height", 187)
         .add("weight", 90);
 
-    assertEquals(187, mymap.i("height").intValue());
-    assertEquals(90, mymap.i("weight").intValue());
+    assertEquals(187, mymap.i("height"));
+    assertEquals(90, mymap.i("weight"));
   }
 
   @Test

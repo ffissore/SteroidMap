@@ -201,6 +201,11 @@ public class SMap implements SteroidMap<String> {
     return SteroidMap.super.maps(key).map(s -> (SMap) s);
   }
 
+  @Override
+  public SMap copy() {
+    return new SMap().addAll(this);
+  }
+
   /* GENERATED DELEGATE METHODS */
 
   @Override

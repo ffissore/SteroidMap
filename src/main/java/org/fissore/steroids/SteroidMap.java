@@ -181,7 +181,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param key the key
    * @return value associated to key casted to Long
    */
-  default Long l(K key) {
+  default long l(K key) {
     return (Long) get(key);
   }
 
@@ -192,7 +192,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
    * @return value associated to key, casted to Long. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default Long l(K key, Long defaultValue) {
+  default long l(K key, Long defaultValue) {
     return defaultIfMissing(key, defaultValue, this::l);
   }
 
@@ -202,7 +202,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param key the key
    * @return value associated to key casted to Integer
    */
-  default Integer i(K key) {
+  default int i(K key) {
     return (Integer) get(key);
   }
 
@@ -213,7 +213,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
    * @return value associated to key, casted to Integer. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default Integer i(K key, Integer defaultValue) {
+  default int i(K key, Integer defaultValue) {
     return defaultIfMissing(key, defaultValue, this::i);
   }
 
@@ -223,7 +223,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param key the key
    * @return value associated to key casted to Double
    */
-  default Double d(K key) {
+  default double d(K key) {
     return (Double) get(key);
   }
 
@@ -234,7 +234,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
    * @return value associated to key, casted to Double. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default Double d(K key, Double defaultValue) {
+  default double d(K key, Double defaultValue) {
     return defaultIfMissing(key, defaultValue, this::d);
   }
 
@@ -244,7 +244,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param key the key
    * @return value associated to key casted to Float
    */
-  default Float f(K key) {
+  default float f(K key) {
     return (Float) get(key);
   }
 
@@ -255,7 +255,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
    * @return value associated to key, casted to Float. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default Float f(K key, Float defaultValue) {
+  default float f(K key, Float defaultValue) {
     return defaultIfMissing(key, defaultValue, this::f);
   }
 
@@ -286,7 +286,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param key the key
    * @return value associated to key casted to Boolean
    */
-  default Boolean b(K key) {
+  default boolean b(K key) {
     return (Boolean) get(key);
   }
 
@@ -297,7 +297,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
    * @return value associated to key, casted to Boolean. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default Boolean b(K key, Boolean defaultValue) {
+  default boolean b(K key, Boolean defaultValue) {
     return defaultIfMissing(key, defaultValue, this::b);
   }
 
@@ -334,7 +334,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    */
   @SuppressWarnings("unchecked")
   default <V> V o(K key, V defaultValue) {
-    return defaultIfMissing(key, defaultValue, (key1) -> o(key1));
+    return defaultIfMissing(key, defaultValue, this::o);
   }
 
   /**
@@ -526,10 +526,23 @@ public interface SteroidMap<K> extends Map<K, Object> {
     return defaultIfMissing(key, defaultValue, this::map);
   }
 
+  /**
+   * {@link #get(Object) Gets} given key, cast it to a Collection<? extends SteroidMap<K>> and returns its Stream<? extends SteroidMap<K>>. Each entry is evaluated: if it's not of type SteroidMap, a new SteroidMap is created using value as backing map
+   *
+   * @param key the key
+   * @return value associated to key casted to a Collection<? extends SteroidMap<K>> and converted to a Stream<? extends SteroidMap<K>>
+   */
   default Stream<? extends SteroidMap<K>> maps(K key) {
     return stream(key).map(this::ensureMapIsOnSteroid);
   }
 
   SteroidMap<K> ensureMapIsOnSteroid(Object value);
+
+  /**
+   * Returns a shallow copy of this map
+   *
+   * @return a shallow copy of this map
+   */
+  SteroidMap<K> copy();
 
 }

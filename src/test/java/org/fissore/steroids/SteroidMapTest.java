@@ -220,30 +220,46 @@ public class SteroidMapTest {
 
   @Test
   public void shouldReturnALong() {
-    assertEquals(Long.MAX_VALUE, map.l("long").longValue());
-    assertNull(map.l("long1"));
-    assertEquals(1L, map.l("long1", 1L).longValue());
+    assertEquals(Long.MAX_VALUE, map.l("long"));
+    assertEquals(1L, map.l("long1", 1L));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldFailToReturnALong() {
+    map.l("non existent");
   }
 
   @Test
   public void shouldReturnAnInteger() {
-    assertEquals(Integer.MAX_VALUE, map.i("int").intValue());
-    assertNull(map.i("int1"));
-    assertEquals(1, map.i("int1", 1).intValue());
+    assertEquals(Integer.MAX_VALUE, map.i("int"));
+    assertEquals(1, map.i("int1", 1));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldFailToReturnAnInteger() {
+    map.i("non existent");
   }
 
   @Test
   public void shouldReturnADouble() {
     assertEquals(Double.MAX_VALUE, map.d("double"), 0d);
-    assertNull(map.d("double1"));
     assertEquals(1.1d, map.d("double1", 1.1d), 0d);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldFailToReturnADouble() {
+    map.d("non existent");
   }
 
   @Test
   public void shouldReturnAFloat() {
     assertEquals(Float.MAX_VALUE, map.f("float"), 0f);
-    assertNull(map.f("float1"));
     assertEquals(1.1f, map.f("float1", 1.1f), 0f);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldFailToReturnAFloat() {
+    map.f("non existent");
   }
 
   @Test
@@ -257,8 +273,12 @@ public class SteroidMapTest {
   @Test
   public void shouldReturnABoolean() {
     assertTrue(map.b("boolean"));
-    assertNull(map.b("boolean1"));
     assertTrue(map.b("boolean1", true));
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void shouldFailToReturnABoolean() {
+    map.b("non existent");
   }
 
   @Test
@@ -334,7 +354,7 @@ public class SteroidMapTest {
     assertEquals(submap, map.map("submap"));
     assertTrue(submap == map.map("submap"));
     assertEquals("hello", map.map("submap").s("key1"));
-    assertEquals(42, map.map("submap").i("key2").intValue());
+    assertEquals(42, map.map("submap").i("key2"));
 
     assertEquals(simpleMap, map.map("simpleMap"));
 
@@ -408,4 +428,19 @@ public class SteroidMapTest {
     new SMap(new PrivateMap()).subMap();
   }
 
+  @Test
+  public void shouldReturnACopy() throws Exception {
+    SMap copy = map.copy();
+    map.keySet().forEach(key -> {
+      assertTrue(copy.valued(key));
+      assertTrue(map.valued(key));
+    });
+
+    copy.renameKey("key1", "key one");
+    assertTrue(copy.notValued("key1"));
+    assertTrue(copy.valued("key one"));
+
+    assertTrue(map.valued("key1"));
+    assertTrue(map.notValued("key one"));
+  }
 }

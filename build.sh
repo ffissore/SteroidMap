@@ -2,7 +2,7 @@
 
 set -e
 
-VERSION=`git tag | tail -n 1`
+VERSION=`grep version pom.xml | head -n 1 | grep -Po '\>.*\<' | sed 's/[<>]//g'`
 
 sed "s/@@VERSION@@/$VERSION/g" README.template.md > README.md
 
