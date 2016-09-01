@@ -163,7 +163,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * @param key           the key
    * @param defaultValue  the value to return if key is not {@link #valued(Object) valued}
    * @param valueReturner the function to apply the key to
-   * @param <V>           the type of the value
+   * @param <V>           the return type
    * @return either value from map or defaultValue
    */
   default <V> V defaultIfMissing(K key, V defaultValue, Function<K, V> valueReturner) {
@@ -305,11 +305,23 @@ public interface SteroidMap<K> extends Map<K, Object> {
    * {@link #get(Object) Gets} given key and cast it to type V
    *
    * @param key the key
+   * @param <V> the return type
    * @return value associated to key casted to type V
    */
-  @SuppressWarnings("unchecked")
   default <V> V o(K key) {
     return (V) get(key);
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and transform it using given function
+   *
+   * @param key         the key
+   * @param transformer a function used to change original value
+   * @param <V>         the return type
+   * @return value associated to key and transformed using function
+   */
+  default <V> V o(K key, Function<Object, V> transformer) {
+    return transformer.apply(get(key));
   }
 
   /**
@@ -317,7 +329,7 @@ public interface SteroidMap<K> extends Map<K, Object> {
    *
    * @param key   the key
    * @param clazz the clazz, useful only to make the compiler happy about type V
-   * @param <V>   the type of the value associated with key
+   * @param <V>   the return type
    * @return value associated to key casted to type V
    */
   @SuppressWarnings("unchecked")
@@ -330,11 +342,25 @@ public interface SteroidMap<K> extends Map<K, Object> {
    *
    * @param key          the key
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @param <V>          the return type
    * @return value associated to key, casted to Object. defaultValue if key is not {@link #valued(Object) valued}
    */
   @SuppressWarnings("unchecked")
   default <V> V o(K key, V defaultValue) {
     return defaultIfMissing(key, defaultValue, this::o);
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and transform it using given function. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param transformer  a function used to change original value
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @param <V>          the return type
+   * @return value associated to key, tranformed using function. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default <V> V o(K key, Function<Object, V> transformer, V defaultValue) {
+    return defaultIfMissing(key, defaultValue, (k) -> o(k, transformer));
   }
 
   /**
@@ -379,68 +405,74 @@ public interface SteroidMap<K> extends Map<K, Object> {
   }
 
   /**
-   * {@link #get(Object) Gets} given key and cast it to a Collection<T>
+   * {@link #get(Object) Gets} given key and cast it to a Collection&lt;V&gt;
    *
    * @param key the key
-   * @return value associated to key casted to Collection<T>
+   * @param <V> the return type
+   * @return value associated to key casted to Collection&lt;V&gt;
    */
   @SuppressWarnings("unchecked")
-  default <T> Collection<T> collection(K key) {
-    return (Collection<T>) get(key);
+  default <V> Collection<V> collection(K key) {
+    return (Collection<V>) get(key);
   }
 
   /**
-   * {@link #get(Object) Gets} given key and cast it to a Collection<T>. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   * {@link #get(Object) Gets} given key and cast it to a Collection&lt;V&gt;. If key is not {@link #valued(Object) valued}, it returns defaultValue
    *
    * @param key          the key
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
-   * @return value associated to key, casted to Collection<T>. defaultValue if key is not {@link #valued(Object) valued}
+   * @param <V>          the return type
+   * @return value associated to key, casted to Collection&lt;V&gt;. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default <T> Collection<T> collection(K key, Collection<T> defaultValue) {
+  default <V> Collection<V> collection(K key, Collection<V> defaultValue) {
     return defaultIfMissing(key, defaultValue, this::collection);
   }
 
   /**
-   * {@link #get(Object) Gets} given key and cast it to a List<T>
+   * {@link #get(Object) Gets} given key and cast it to a List&lt;V&gt;
    *
    * @param key the key
-   * @return value associated to key casted to List<T>
+   * @param <V> the return type
+   * @return value associated to key casted to List&lt;V&gt;
    */
   @SuppressWarnings("unchecked")
-  default <T> List<T> list(K key) {
-    return (List<T>) get(key);
+  default <V> List<V> list(K key) {
+    return (List<V>) get(key);
   }
 
   /**
-   * {@link #get(Object) Gets} given key and cast it to a List<T>. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   * {@link #get(Object) Gets} given key and cast it to a List&lt;V&gt;. If key is not {@link #valued(Object) valued}, it returns defaultValue
    *
    * @param key          the key
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
-   * @return value associated to key, casted to List<T>. defaultValue if key is not {@link #valued(Object) valued}
+   * @param <V>          the return type
+   * @return value associated to key, casted to List&lt;V&gt;. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default <T> List<T> list(K key, List<T> defaultValue) {
+  default <V> List<V> list(K key, List<V> defaultValue) {
     return defaultIfMissing(key, defaultValue, this::list);
   }
 
   /**
-   * {@link #get(Object) Gets} given key, cast it to a Collection<T> and returns its Stream<T>
+   * {@link #get(Object) Gets} given key, cast it to a Collection&lt;V&gt; and returns its Stream&lt;V&gt;
    *
    * @param key the key
-   * @return value associated to key casted to a Collection<T> and converted to a Stream<T>
+   * @param <V> the return type
+   * @return value associated to key casted to a Collection&lt;V&gt; and converted to a Stream&lt;V&gt;
    */
   @SuppressWarnings("unchecked")
-  default <T> Stream<T> stream(K key) {
-    return (Stream<T>) collection(key).stream();
+  default <V> Stream<V> stream(K key) {
+    return (Stream<V>) collection(key).stream();
   }
 
   /**
-   * {@link #get(Object) Gets} given key, cast it to a Collection<T> and returns its Stream<T>. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   * {@link #get(Object) Gets} given key, cast it to a Collection&lt;V&gt; and returns its Stream&lt;V&gt;. If key is not {@link #valued(Object) valued}, it returns defaultValue
    *
    * @param key          the key
    * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
-   * @return value associated to key casted to a Collection<T> and converted to a Stream<T>. defaultValue if key is not {@link #valued(Object) valued}
+   * @param <V>          the return type
+   * @return value associated to key casted to a Collection&lt;V&gt; and converted to a Stream&lt;V&gt;. defaultValue if key is not {@link #valued(Object) valued}
    */
-  default <T> Stream<T> stream(K key, Collection<T> defaultValue) {
+  default <V> Stream<V> stream(K key, Collection<V> defaultValue) {
     return collection(key, defaultValue).stream();
   }
 
@@ -527,10 +559,10 @@ public interface SteroidMap<K> extends Map<K, Object> {
   }
 
   /**
-   * {@link #get(Object) Gets} given key, cast it to a Collection<? extends SteroidMap<K>> and returns its Stream<? extends SteroidMap<K>>. Each entry is evaluated: if it's not of type SteroidMap, a new SteroidMap is created using value as backing map
+   * {@link #get(Object) Gets} given key, cast it to a Collection&lt;? extends SteroidMap&lt;K&gt;&gt; and returns its Stream&lt;? extends SteroidMap&lt;K&gt;&gt;. Each entry is evaluated: if it's not of type SteroidMap, a new SteroidMap is created using value as backing map
    *
    * @param key the key
-   * @return value associated to key casted to a Collection<? extends SteroidMap<K>> and converted to a Stream<? extends SteroidMap<K>>
+   * @return value associated to key casted to a Collection&lt;? extends SteroidMap&lt;K&gt;&gt; and converted to a Stream&lt;? extends SteroidMap&lt;K&gt;&gt;
    */
   default Stream<? extends SteroidMap<K>> maps(K key) {
     return stream(key).map(this::ensureMapIsOnSteroid);

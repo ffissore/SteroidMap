@@ -292,6 +292,21 @@ public class SteroidMapTest {
     assertNotNull(something1);
     Something somethingElse1 = map.o("object1", somethingElse);
     assertNotNull(somethingElse1);
+
+    assertEquals("'" + Integer.MAX_VALUE + "'", map.o("int", (v) -> {
+      int i = (int) v;
+      return "'" + i + "'";
+    }));
+
+    assertEquals("'" + Integer.MAX_VALUE + "'", map.o("int", (v) -> {
+      int i = (int) v;
+      return "'" + i + "'";
+    }, "default"));
+
+    assertEquals("default", map.o("nonexistent", (v) -> {
+      int i = (int) v;
+      return "'" + i + "'";
+    }, "default"));
   }
 
   @Test
