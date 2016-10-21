@@ -114,7 +114,5 @@ public class ExamplesTest {
       assertTrue(submap.valued("surname"));
       assertFalse(friend.valued("address"));
     });
-
-    System.out.println(submap);
   }
 }

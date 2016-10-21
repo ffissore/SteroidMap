@@ -360,7 +360,7 @@ public class SteroidMapTest {
     List<Integer> list1 = new LinkedList<>(this.list);
     assertEquals(list1, map.list("list1", list1));
 
-    List<Integer> nonexistent = map.stream("nonexistent", Arrays.asList(1, 2, 3)).collect(Collectors.toList());
+    List<Integer> nonexistent = map.stream("nonexistent", Arrays.asList(1, 2, 3).stream()).collect(Collectors.toList());
     assertEquals(nonexistent, Arrays.asList(1, 2, 3));
   }
 
@@ -376,6 +376,8 @@ public class SteroidMapTest {
     assertNull(map.list("map1"));
     SMap map1 = new SMap();
     assertEquals(map1, map.map("map1", map1));
+
+    assertNull(map.map("non existent map"));
   }
 
   @Test
@@ -386,12 +388,18 @@ public class SteroidMapTest {
     List<SMap> maps1 = map.maps("maps").collect(Collectors.toList());
     assertEquals(maps, maps1);
 
-    List<SMap> maps2 = map.maps("maps")
+    List<SMap> maps2 = map.maps("maps", Stream.empty())
         .filter(map -> map.s("key").equals("value1"))
         .collect(Collectors.toList());
 
     assertEquals(1, maps2.size());
     assertEquals(maps2.get(0), new SMap("key", "value1"));
+
+    List<SMap> maps3 = map.maps("maps_non_existent", Stream.empty()).collect(Collectors.toList());
+    assertEquals(0, maps3.size());
+
+    Stream<SMap> emptyStream = map.maps("maps_non_existent");
+    assertEquals(new LinkedList<>(), emptyStream.collect(Collectors.toList()));
   }
 
   @Test(expected = IllegalArgumentException.class)

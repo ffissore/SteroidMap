@@ -112,6 +112,9 @@ public class SMap implements SteroidMap<String> {
   @SuppressWarnings("unchecked")
   @Override
   public SMap ensureMapIsOnSteroid(Object value) {
+    if (value == null) {
+      return null;
+    }
     if (value instanceof SMap) {
       return (SMap) value;
     }
@@ -199,6 +202,11 @@ public class SMap implements SteroidMap<String> {
   @Override
   public Stream<SMap> maps(String key) {
     return SteroidMap.super.maps(key).map(s -> (SMap) s);
+  }
+
+  @Override
+  public Stream<? extends SMap> maps(String key, Stream<? extends SteroidMap<String>> defaultValue) {
+    return SteroidMap.super.maps(key, defaultValue).map(s -> (SMap) s);
   }
 
   @Override

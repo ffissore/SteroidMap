@@ -20,7 +20,7 @@ If you've just started with SteroidMap, its default implementation, [SMap](http:
 <dependency>
   <groupId>org.fissore.steroids</groupId>
   <artifactId>steroidmap</artifactId>
-  <version>2.1.0</version>
+  <version>3.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
