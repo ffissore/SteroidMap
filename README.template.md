@@ -7,12 +7,12 @@ Steroid Map was born to make it easier to both consume and produce JSON API resp
 
 Some advantages come from two technologies we were using: JSON APIs and SQL Mappers.
 
-When using maps, JSON (de)serializers output only what's in the map: if you want more data, you put more data in the map. You don't need to add fields to a java bean and to annotate them properly.
+When using maps, JSON (de)serializers output only what's in the map. Thus, if you want more data, you just put more data in the map. You don't need to add fields to a java bean and annotate them properly.
 
 When using maps, SQL mappers (like MyBatis) will produce lists of maps with the columns you put in your `select` statements. If you want more or less data, you change your `select` statements, thus modifying one single line of code.
-Instead, when using java beans, you also need to add and annotate fields. And if that java beans ends up having too much data for some APIs, you end up writing different version of the same java bean (User, UserWithoutPassword, PublicUser...)
+Instead, when using java beans, you also need to add and annotate fields. And if that java bean ends up having too much data for some JSON APIs, you end up writing different version of the same java bean (User, UserWithoutPassword, PublicUser...)
 
-If you've just started with SteroidMap, its default implementation, [SMap](http://ffissore.github.io/SteroidMap/apidocs/index.html), has everything you need to play with it. And these are the only two classes of this project, in case you're wondering how much complex is it.
+If you've just started with SteroidMap, its default implementation, [SMap](http://ffissore.github.io/SteroidMap/apidocs/index.html), has everything you need to play with it. And these are the only two classes of this project, in case you're wondering how much complex it is.
 
 ## POM snippet
 
