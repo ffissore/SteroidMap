@@ -8,6 +8,7 @@
   <packaging>jar</packaging>
 
   <name>SteroidMap</name>
+
   <url>https://github.com/ffissore/SteroidMap</url>
   <description>A Java 8 fluent map interface</description>
 
@@ -53,18 +54,18 @@
 
     <junit.version>4.12</junit.version>
 
-    <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-    <pitest-maven.version>1.1.9</pitest-maven.version>
-    <jacoco-maven-plugin.version>0.7.6.201602180812</jacoco-maven-plugin.version>
-    <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
-    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-    <maven-findbugs-plugin.version>3.0.3</maven-findbugs-plugin.version>
-    <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
-    <maven-site-plugin.version>3.5.1</maven-site-plugin.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    <pitest-maven.version>1.4.6</pitest-maven.version>
+    <jacoco-maven-plugin.version>0.8.3</jacoco-maven-plugin.version>
+    <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
+    <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+    <maven-findbugs-plugin.version>3.0.5</maven-findbugs-plugin.version>
+    <maven-pmd-plugin.version>3.11.0</maven-pmd-plugin.version>
+    <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
     <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
     <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-    <nexus-staging-maven-plugin.version>1.6.7</nexus-staging-maven-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
   </properties>
 
   <dependencies>
