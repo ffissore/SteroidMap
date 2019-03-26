@@ -9,3 +9,5 @@ sed "s/@@VERSION@@/$VERSION/g" README.template.md > README.md
 cp README.md src/site/markdown/index.md
 
 mvn clean install org.pitest:pitest-maven:mutationCoverage site
+
+cp -R target/site/* docs/

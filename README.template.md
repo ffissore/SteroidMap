@@ -1,5 +1,10 @@
 # Steroid Map
 
+![License](https://img.shields.io/github/license/ffissore/SteroidMap.svg)
+![Version](https://img.shields.io/maven-central/v/org.fissore.steroids/steroidmap.svg)
+[![security status](https://www.meterian.com/badge/gh/ffissore/SteroidMap/security)](https://www.meterian.com/report/gh/ffissore/SteroidMap)
+[![stability status](https://www.meterian.com/badge/gh/ffissore/SteroidMap/stability)](https://www.meterian.com/report/gh/ffissore/SteroidMap)
+
 Steroid Map is a Java 8 fluent interface that makes working with maps much easier. So much easier, that you'll start
 considering using maps instead of plain **old** java beans.
 

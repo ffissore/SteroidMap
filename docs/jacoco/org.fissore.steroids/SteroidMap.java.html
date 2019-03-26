@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SteroidMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SteroidMap</a> &gt; <a href="index.source.html" class="el_package">org.fissore.steroids</a> &gt; <span class="el_source">SteroidMap.java</span></div><h1>SteroidMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2017 Federico Fissore &lt;federico@fissore.org&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fissore.steroids;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+/**
+ * SteroidMap is a {@link Map} on steroids.
+ * It decorates {@link Map} providing a fluent interface and a shorter syntax. It allows you to navigate a map structure without using casts.
+ * It doesn't require any code to work with other frameworks/libraries: if they know how to deal with {@link Map}s, they work with SteroidMap as well.
+ * Custom implementations should implement SteroidMap and delegate the actual storage to a backing map implementation, such as {@link HashMap} or {@link java.util.concurrent.ConcurrentHashMap}.
+ *
+ * @param &lt;K&gt; the type of the keys
+ */
+public interface SteroidMap&lt;K&gt; extends Map&lt;K, Object&gt; {
+
+  /* content manipulation */
+
+  /**
+   * {@link #put(Object, Object) Puts} a value if not null. Fluent version of {@link #put(Object, Object)}
+   *
+   * @param key   key with which the specified value is to be associated
+   * @param value value to be associated with the specified key
+   * @return this instance
+   */
+  default SteroidMap&lt;K&gt; add(K key, Object value) {
+<span class="fc bfc" id="L42" title="All 2 branches covered.">    if (value != null) {</span>
+<span class="fc" id="L43">      put(key, value);</span>
+    }
+<span class="fc" id="L45">    return this;</span>
+  }
+
+  /**
+   * {@link #put(Object, Object) Puts} all non null values from given maps into this map. Fluent version of {@link #putAll(Map)}
+   *
+   * @param sources mappings to be stored in this map
+   * @return this instance
+   * @see #addAll(Stream)
+   */
+  default SteroidMap&lt;K&gt; addAll(Map&lt;K, Object&gt;... sources) {
+<span class="fc" id="L56">    return addAll(Stream.of(sources));</span>
+  }
+
+  /**
+   * {@link #put(Object, Object) Puts} all non null values from given maps into this map. Fluent version of {@link #putAll(Map)}
+   *
+   * @param sources mappings to be stored in this map
+   * @return this instance
+   * @see #addAll(Stream)
+   */
+  default SteroidMap&lt;K&gt; addAll(Collection&lt;Map&lt;K, Object&gt;&gt; sources) {
+<span class="fc" id="L67">    return addAll(sources.stream());</span>
+  }
+
+  /**
+   * {@link #put(Object, Object) Puts} all non null values from given maps into this map. Fluent version of {@link #putAll(Map)}
+   *
+   * @param sources mappings to be stored in this map
+   * @return this instance
+   */
+  default SteroidMap&lt;K&gt; addAll(Stream&lt;Map&lt;K, Object&gt;&gt; sources) {
+<span class="fc" id="L77">    synchronized (this) {</span>
+<span class="fc" id="L78">      sources.forEach(source -&gt; source.forEach(this::add));</span>
+<span class="fc" id="L79">    }</span>
+<span class="fc" id="L80">    return this;</span>
+  }
+
+  /**
+   * {@link #put(Object, Object) Puts} non null keys from source into this map. If keys is not specified, it behaves as {@link #addAll(Map[])}
+   *
+   * @param source the map to add to this map
+   * @param keys   if specified, only given keys will be added
+   * @return this instance
+   */
+  default SteroidMap&lt;K&gt; addFrom(Map&lt;K, Object&gt; source, K... keys) {
+<span class="fc" id="L91">    return addFrom(source, new HashSet&lt;&gt;(Arrays.asList(keys)));</span>
+  }
+
+  /**
+   * {@link #put(Object, Object) Puts} non null keys from source into this map. If keys is not specified, it behaves as {@link #addAll(Map[])}
+   *
+   * @param source the map to add to this map
+   * @param keys   if specified, only these keys will be added
+   * @return this instance
+   */
+  default SteroidMap&lt;K&gt; addFrom(Map&lt;K, Object&gt; source, Collection&lt;K&gt; keys) {
+<span class="fc bfc" id="L102" title="All 2 branches covered.">    if (source == null) {</span>
+<span class="fc" id="L103">      return this;</span>
+    }
+
+<span class="fc bfc" id="L106" title="All 2 branches covered.">    if (keys.size() == 0) {</span>
+<span class="fc" id="L107">      return addAll(source);</span>
+    }
+
+<span class="fc" id="L110">    synchronized (this) {</span>
+<span class="fc" id="L111">      source.entrySet().stream()</span>
+<span class="fc" id="L112">          .filter(e -&gt; keys.contains(e.getKey()))</span>
+<span class="fc" id="L113">          .forEach(e -&gt; add(e.getKey(), e.getValue()));</span>
+<span class="fc" id="L114">    }</span>
+
+<span class="fc" id="L116">    return this;</span>
+  }
+
+  /**
+   * Renames the specified key, if present. It runs a in a synchronized block
+   *
+   * @param oldKey the old key
+   * @param newKey the new key
+   * @return this instance
+   */
+  default SteroidMap&lt;K&gt; renameKey(K oldKey, K newKey) {
+<span class="fc" id="L127">    synchronized (this) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">      if (!containsKey(oldKey)) {</span>
+<span class="fc" id="L129">        return this;</span>
+      }
+<span class="fc" id="L131">      put(newKey, get(oldKey));</span>
+<span class="fc" id="L132">      remove(oldKey);</span>
+<span class="fc" id="L133">    }</span>
+<span class="fc" id="L134">    return this;</span>
+  }
+
+  /**
+   * Removes given keys from this map. Fluent version of {@link #remove(Object)}
+   *
+   * @param keys the keys to remove
+   * @return this instance
+   * @see #del(Stream)
+   */
+  default SteroidMap&lt;K&gt; del(K... keys) {
+<span class="fc" id="L145">    return del(Stream.of(keys));</span>
+  }
+
+  /**
+   * Removes given keys from this map. Fluent version of {@link #remove(Object)}
+   *
+   * @param keys the keys to remove
+   * @return this instance
+   * @see #del(Stream)
+   */
+  default SteroidMap&lt;K&gt; del(Collection&lt;K&gt; keys) {
+<span class="fc" id="L156">    return del(keys.stream());</span>
+  }
+
+  /**
+   * Removes given keys from this map. Fluent version of {@link #remove(Object)}
+   *
+   * @param keys the keys to remove
+   * @return this instance
+   */
+  default SteroidMap&lt;K&gt; del(Stream&lt;K&gt; keys) {
+<span class="fc" id="L166">    synchronized (this) {</span>
+<span class="fc" id="L167">      keys.forEach(this::remove);</span>
+<span class="fc" id="L168">    }</span>
+<span class="fc" id="L169">    return this;</span>
+  }
+
+  /* content extraction */
+
+  /**
+   * If given key is {@link #valued(Object) valued}, it's applied to provided valueReturner. Otherwise, defaultValue is returned.
+   * Both checking if the key is {@link #valued(Object) valued} and applying valueReturner run in a synchronized block
+   *
+   * @param key           the key
+   * @param defaultValue  the value to return if key is not {@link #valued(Object) valued}
+   * @param valueReturner the function to apply the key to
+   * @param &lt;V&gt;           the return type
+   * @return either value from map or defaultValue
+   */
+  default &lt;V&gt; V defaultIfMissing(K key, V defaultValue, Function&lt;K, V&gt; valueReturner) {
+<span class="fc" id="L185">    synchronized (this) {</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">      if (valued(key)) {</span>
+<span class="fc" id="L187">        return valueReturner.apply(key);</span>
+      }
+<span class="fc" id="L189">    }</span>
+<span class="fc" id="L190">    return defaultValue;</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Long
+   *
+   * @param key the key
+   * @return value associated to key casted to Long
+   */
+  default long l(K key) {
+<span class="fc" id="L200">    return (Long) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Long. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, casted to Long. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default long l(K key, long defaultValue) {
+<span class="fc" id="L211">    return defaultIfMissing(key, defaultValue, this::l);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Integer
+   *
+   * @param key the key
+   * @return value associated to key casted to Integer
+   */
+  default int i(K key) {
+<span class="fc" id="L221">    return (Integer) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Integer. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, casted to Integer. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default int i(K key, int defaultValue) {
+<span class="fc" id="L232">    return defaultIfMissing(key, defaultValue, this::i);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Double
+   *
+   * @param key the key
+   * @return value associated to key casted to Double
+   */
+  default double d(K key) {
+<span class="fc" id="L242">    return (Double) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Double. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, casted to Double. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default double d(K key, double defaultValue) {
+<span class="fc" id="L253">    return defaultIfMissing(key, defaultValue, this::d);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Float
+   *
+   * @param key the key
+   * @return value associated to key casted to Float
+   */
+  default float f(K key) {
+<span class="fc" id="L263">    return (Float) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Float. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, casted to Float. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default float f(K key, float defaultValue) {
+<span class="fc" id="L274">    return defaultIfMissing(key, defaultValue, this::f);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a String
+   *
+   * @param key the key
+   * @return value associated to key casted to String
+   */
+  default String s(K key) {
+<span class="fc" id="L284">    return (String) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a String. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, casted to String. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default String s(K key, String defaultValue) {
+<span class="fc" id="L295">    return defaultIfMissing(key, defaultValue, this::s);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Boolean
+   *
+   * @param key the key
+   * @return value associated to key casted to Boolean
+   */
+  default boolean b(K key) {
+<span class="fc" id="L305">    return (Boolean) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Boolean. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, casted to Boolean. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default boolean b(K key, boolean defaultValue) {
+<span class="fc" id="L316">    return defaultIfMissing(key, defaultValue, this::b);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to type V
+   *
+   * @param key the key
+   * @param &lt;V&gt; the return type
+   * @return value associated to key casted to type V
+   */
+  default &lt;V&gt; V o(K key) {
+<span class="fc" id="L327">    return (V) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and transform it using given function
+   *
+   * @param key         the key
+   * @param transformer a function used to change original value
+   * @param &lt;V&gt;         the return type
+   * @return value associated to key and transformed using function
+   */
+  default &lt;V&gt; V o(K key, Function&lt;Object, V&gt; transformer) {
+<span class="fc" id="L339">    return transformer.apply(get(key));</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to type of given Class
+   *
+   * @param key   the key
+   * @param clazz the clazz, useful only to make the compiler happy about type V
+   * @param &lt;V&gt;   the return type
+   * @return value associated to key casted to type V
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  default &lt;V&gt; V o(K key, Class&lt;V&gt; clazz) {
+<span class="fc" id="L352">    return (V) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Object. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @param &lt;V&gt;          the return type
+   * @return value associated to key, casted to Object. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  default &lt;V&gt; V o(K key, V defaultValue) {
+<span class="fc" id="L365">    return defaultIfMissing(key, defaultValue, this::o);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and transform it using given function. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param transformer  a function used to change original value
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @param &lt;V&gt;          the return type
+   * @return value associated to key, transformed using function. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default &lt;V&gt; V o(K key, Function&lt;Object, V&gt; transformer, V defaultValue) {
+<span class="fc" id="L378">    return defaultIfMissing(key, defaultValue, (k) -&gt; o(k, transformer));</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Date
+   *
+   * @param key the key
+   * @return value associated to key casted to Date
+   */
+  default Date date(K key) {
+<span class="fc" id="L388">    return (Date) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Date. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, casted to Date. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default Date date(K key, Date defaultValue) {
+<span class="fc" id="L399">    return defaultIfMissing(key, defaultValue, this::date);</span>
+  }
+
+  /**
+   * A key is valued if &lt;code&gt;{@link #get(Object) get(key)} != null&lt;/code&gt;
+   *
+   * @param key the key
+   * @return true if {@link #get(Object) get(key)} != null
+   */
+  default boolean valued(K key) {
+<span class="fc bfc" id="L409" title="All 2 branches covered.">    return get(key) != null;</span>
+  }
+
+  /**
+   * Opposite of {@link #valued(Object)}
+   *
+   * @param key the key
+   * @return true if {@link #get(Object) get(key)} == null
+   */
+  default boolean notValued(K key) {
+<span class="fc bfc" id="L419" title="All 2 branches covered.">    return !valued(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Collection&amp;lt;V&amp;gt;
+   *
+   * @param key the key
+   * @param &lt;V&gt; the return type
+   * @return value associated to key casted to Collection&amp;lt;V&amp;gt;
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  default &lt;V&gt; Collection&lt;V&gt; collection(K key) {
+<span class="fc" id="L431">    return (Collection&lt;V&gt;) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a Collection&amp;lt;V&amp;gt;. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @param &lt;V&gt;          the return type
+   * @return value associated to key, casted to Collection&amp;lt;V&amp;gt;. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default &lt;V&gt; Collection&lt;V&gt; collection(K key, Collection&lt;V&gt; defaultValue) {
+<span class="fc" id="L443">    return defaultIfMissing(key, defaultValue, this::collection);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a List&amp;lt;V&amp;gt;
+   *
+   * @param key the key
+   * @param &lt;V&gt; the return type
+   * @return value associated to key casted to List&amp;lt;V&amp;gt;
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  default &lt;V&gt; List&lt;V&gt; list(K key) {
+<span class="fc" id="L455">    return (List&lt;V&gt;) get(key);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key and cast it to a List&amp;lt;V&amp;gt;. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @param &lt;V&gt;          the return type
+   * @return value associated to key, casted to List&amp;lt;V&amp;gt;. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default &lt;V&gt; List&lt;V&gt; list(K key, List&lt;V&gt; defaultValue) {
+<span class="fc" id="L467">    return defaultIfMissing(key, defaultValue, this::list);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key, cast it to a Collection&amp;lt;V&amp;gt; and returns its Stream&amp;lt;V&amp;gt;
+   *
+   * @param key the key
+   * @param &lt;V&gt; the return type
+   * @return value associated to key casted to a Collection&amp;lt;V&amp;gt; and converted to a Stream&amp;lt;V&amp;gt;
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  default &lt;V&gt; Stream&lt;V&gt; stream(K key) {
+<span class="fc" id="L479">    return (Stream&lt;V&gt;) collection(key).stream();</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key, cast it to a Collection&amp;lt;V&amp;gt; and returns its Stream&amp;lt;V&amp;gt;. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @param &lt;V&gt;          the return type
+   * @return value associated to key casted to a Collection&amp;lt;V&amp;gt; and converted to a Stream&amp;lt;V&amp;gt;. defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default &lt;V&gt; Stream&lt;V&gt; stream(K key, Stream&lt;V&gt; defaultValue) {
+<span class="fc" id="L491">    return defaultIfMissing(key, defaultValue, this::stream);</span>
+  }
+
+  /**
+   * Creates a new SteroidMap made of given keys only. Keys must be {@link #valued(Object) valued}
+   *
+   * @param keys the keys used to create a new, filtered SteroidMap
+   * @return a new, filtered, SteroidMap
+   * @see #subMap(Stream)
+   */
+  default SteroidMap&lt;K&gt; subMap(K... keys) {
+<span class="fc" id="L502">    return subMap(Stream.of(keys));</span>
+  }
+
+  /**
+   * Creates a new SteroidMap made of given keys only. Keys must be {@link #valued(Object) valued}
+   *
+   * @param keys the keys used to create a new, filtered SteroidMap
+   * @return a new, filtered, SteroidMap
+   * @see #subMap(Stream)
+   */
+  default SteroidMap&lt;K&gt; subMap(Collection&lt;K&gt; keys) {
+<span class="fc" id="L513">    return subMap(keys.stream());</span>
+  }
+
+  /**
+   * Creates a new SteroidMap made of given keys only. Keys must be {@link #valued(Object) valued}
+   *
+   * @param keys the keys used to create a new, filtered SteroidMap
+   * @return a new, filtered, SteroidMap
+   */
+  SteroidMap&lt;K&gt; subMap(Stream&lt;K&gt; keys);
+
+  /**
+   * Creates a new SteroidMap, backed by given backingMap and made of given keys only. Keys must be {@link #valued(Object) valued}
+   *
+   * @param backingMap the actual map to use as storage
+   * @param keys       the keys used to create a new, filtered SteroidMap
+   * @return a new, filtered, SteroidMap
+   * @see #subMap(Map, Stream)
+   */
+  default SteroidMap&lt;K&gt; subMap(Map&lt;K, Object&gt; backingMap, K... keys) {
+<span class="fc" id="L533">    return subMap(backingMap, Stream.of(keys));</span>
+  }
+
+  /**
+   * Creates a new SteroidMap, backed by given backingMap and made of given keys only. Keys must be {@link #valued(Object) valued}
+   *
+   * @param backingMap the actual map to use as storage
+   * @param keys       the keys used to create a new, filtered SteroidMap
+   * @return a new, filtered, SteroidMap
+   * @see #subMap(Map, Stream)
+   */
+  default SteroidMap&lt;K&gt; subMap(Map&lt;K, Object&gt; backingMap, Collection&lt;K&gt; keys) {
+<span class="fc" id="L545">    return subMap(backingMap, keys.stream());</span>
+  }
+
+  /**
+   * Creates a new SteroidMap, backed by given backingMap and made of given keys only. Keys must be {@link #valued(Object) valued}
+   *
+   * @param backingMap the actual map to use as storage
+   * @param keys       the keys used to create a new, filtered SteroidMap
+   * @return a new, filtered, SteroidMap
+   */
+  SteroidMap&lt;K&gt; subMap(Map&lt;K, Object&gt; backingMap, Stream&lt;K&gt; keys);
+
+  /**
+   * {@link #get(Object) Gets} given key and, if value is not of type SteroidMap, a new SteroidMap is created using value as backing map. Otherwise value is casted to SteroidMap and returned
+   *
+   * @param key the key
+   * @return value associated to key, either casted to SteroidMap or used as backing map for a new SteroidMap
+   */
+  SteroidMap&lt;K&gt; map(K key);
+
+  /**
+   * {@link #get(Object) Gets} given key and, if value is not of type SteroidMap, a new SteroidMap is created using value as backing map. Otherwise value is casted to SteroidMap and returned. If key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key, either casted to SteroidMap or used as backing map for a new SteroidMap
+   */
+  default SteroidMap&lt;K&gt; map(K key, SteroidMap&lt;K&gt; defaultValue) {
+<span class="fc" id="L573">    return defaultIfMissing(key, defaultValue, this::map);</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key, cast it to a Collection&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt; and returns its Stream&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt;. Each entry is evaluated: if it's not of type SteroidMap, a new SteroidMap is created using value as backing map. If the key is not {@link #valued(Object) valued}, an empty Stream is returned
+   *
+   * @param key the key
+   * @return value associated to key casted to a Collection&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt; and converted to a Stream&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt;, or an empty Stream if key is not {@link #valued(Object) valued}
+   */
+  default Stream&lt;? extends SteroidMap&lt;K&gt;&gt; maps(K key) {
+<span class="fc" id="L583">    return defaultIfMissing(key, Stream.empty(), (k) -&gt; stream(k).map(this::ensureMapIsOnSteroid));</span>
+  }
+
+  /**
+   * {@link #get(Object) Gets} given key, cast it to a Collection&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt; and returns its Stream&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt;. Each entry is evaluated: if it's not of type SteroidMap, a new SteroidMap is created using value as backing map. If the key is not {@link #valued(Object) valued}, it returns defaultValue
+   *
+   * @param key          the key
+   * @param defaultValue the defaultValue to return if key is not {@link #valued(Object) valued}
+   * @return value associated to key casted to a Collection&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt; and converted to a Stream&amp;lt;? extends SteroidMap&amp;lt;K&amp;gt;&amp;gt;, defaultValue if key is not {@link #valued(Object) valued}
+   */
+  default Stream&lt;? extends SteroidMap&lt;K&gt;&gt; maps(K key, Stream&lt;? extends SteroidMap&lt;K&gt;&gt; defaultValue) {
+<span class="fc" id="L594">    return defaultIfMissing(key, defaultValue, this::maps);</span>
+  }
+
+  SteroidMap&lt;K&gt; ensureMapIsOnSteroid(Object value);
+
+  /**
+   * Returns a shallow copy of this map
+   *
+   * @return a shallow copy of this map
+   */
+  SteroidMap&lt;K&gt; copy();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

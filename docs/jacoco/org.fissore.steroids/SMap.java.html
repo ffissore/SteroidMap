@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SteroidMap</a> &gt; <a href="index.source.html" class="el_package">org.fissore.steroids</a> &gt; <span class="el_source">SMap.java</span></div><h1>SMap.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2017 Federico Fissore &lt;federico@fissore.org&gt;
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fissore.steroids;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+/**
+ * SMap is the default implementation of {@link SteroidMap}. By default it's backed by a {@link HashMap}.
+ * It provides some useful constructors as well as implementations to {@link #map(String)}, {@link #subMap(Stream)} and {@link #subMap(Map, Stream)} methods
+ */
+public class SMap implements SteroidMap&lt;String&gt; {
+
+  private final Map&lt;String, Object&gt; map;
+
+  /**
+   * Creates a new SMap, using {@link HashMap} as backing map
+   */
+  public SMap() {
+<span class="fc" id="L39">    this(new HashMap&lt;&gt;());</span>
+<span class="fc" id="L40">  }</span>
+
+  /**
+   * Creates a new SMap, using given map as backing map
+   *
+   * @param map the map to use as backing map
+   */
+<span class="fc" id="L47">  public SMap(Map&lt;String, Object&gt; map) {</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    if (map == null) {</span>
+<span class="fc" id="L49">      throw new NullPointerException();</span>
+    }
+<span class="fc" id="L51">    this.map = map;</span>
+<span class="fc" id="L52">  }</span>
+
+  /**
+   * Creates a new SMap with one initial key/value mapping
+   *
+   * @param key   the first key
+   * @param value the first value
+   * @see #SMap()
+   */
+  public SMap(String key, Object value) {
+<span class="fc" id="L62">    this();</span>
+<span class="fc" id="L63">    add(key, value);</span>
+<span class="fc" id="L64">  }</span>
+
+  /**
+   * Creates a new SMap with two initial key/value mappings
+   *
+   * @param key1   the first key
+   * @param value1 the first value
+   * @param key2   the second key
+   * @param value2 the second value
+   * @see #SMap()
+   */
+  public SMap(String key1, Object value1, String key2, Object value2) {
+<span class="fc" id="L76">    this();</span>
+<span class="fc" id="L77">    add(key1, value1);</span>
+<span class="fc" id="L78">    add(key2, value2);</span>
+<span class="fc" id="L79">  }</span>
+
+  /**
+   * Creates a new SMap with three initial key/value mappings
+   *
+   * @param key1   the first key
+   * @param value1 the first value
+   * @param key2   the second key
+   * @param value2 the second value
+   * @param key3   the third key
+   * @param value3 the third value
+   * @see #SMap()
+   */
+  public SMap(String key1, Object value1, String key2, Object value2, String key3, Object value3) {
+<span class="fc" id="L93">    this();</span>
+<span class="fc" id="L94">    add(key1, value1);</span>
+<span class="fc" id="L95">    add(key2, value2);</span>
+<span class="fc" id="L96">    add(key3, value3);</span>
+<span class="fc" id="L97">  }</span>
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public SMap subMap(Stream&lt;String&gt; keys) {
+<span class="fc" id="L102">    Map&lt;String, Object&gt; map = newInnerMapInstance();</span>
+<span class="fc" id="L103">    return subMap(map, keys);</span>
+  }
+
+  private Map newInnerMapInstance() {
+    try {
+<span class="fc" id="L108">      return this.map.getClass().newInstance();</span>
+<span class="fc" id="L109">    } catch (Exception e) {</span>
+<span class="fc" id="L110">      String error = &quot;Error while using reflection to create a new instance of &quot; + this.map.getClass() + &quot;. Consider using a backing map with a public default constructor or providing backing map on your own and calling subMap(Map, keys...)&quot;;</span>
+<span class="fc" id="L111">      throw new RuntimeException(error, e);</span>
+    }
+  }
+
+  @Override
+  public SMap subMap(Map&lt;String, Object&gt; backingMap, Stream&lt;String&gt; keys) {
+<span class="fc" id="L117">    SMap subMap = new SMap(backingMap);</span>
+<span class="fc" id="L118">    keys.forEach(key -&gt; subMap.add(key, get(key)));</span>
+<span class="fc" id="L119">    return subMap;</span>
+  }
+
+  @Override
+  public SMap map(String key) {
+<span class="fc" id="L124">    return ensureMapIsOnSteroid(get(key));</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public SMap ensureMapIsOnSteroid(Object value) {
+<span class="fc bfc" id="L130" title="All 2 branches covered.">    if (value == null) {</span>
+<span class="fc" id="L131">      return null;</span>
+    }
+<span class="fc bfc" id="L133" title="All 2 branches covered.">    if (value instanceof SMap) {</span>
+<span class="fc" id="L134">      return (SMap) value;</span>
+    }
+<span class="fc bfc" id="L136" title="All 2 branches covered.">    if (value instanceof Map) {</span>
+<span class="fc" id="L137">      return new SMap((Map&lt;String, Object&gt;) value);</span>
+    }
+<span class="fc" id="L139">    throw new IllegalArgumentException(value + &quot; is neither a Map or a SteroidMap&quot;);</span>
+  }
+
+  @Override
+  public SMap add(String key, Object value) {
+<span class="fc" id="L144">    return (SMap) SteroidMap.super.add(key, value);</span>
+  }
+
+  @Override
+  public SMap addAll(Map&lt;String, Object&gt;... sources) {
+<span class="fc" id="L149">    return (SMap) SteroidMap.super.addAll(sources);</span>
+  }
+
+  @Override
+  public SMap addAll(Collection&lt;Map&lt;String, Object&gt;&gt; sources) {
+<span class="fc" id="L154">    return (SMap) SteroidMap.super.addAll(sources);</span>
+  }
+
+  @Override
+  public SMap addAll(Stream&lt;Map&lt;String, Object&gt;&gt; sources) {
+<span class="fc" id="L159">    return (SMap) SteroidMap.super.addAll(sources);</span>
+  }
+
+  @Override
+  public SMap addFrom(Map&lt;String, Object&gt; source, String... keys) {
+<span class="fc" id="L164">    return (SMap) SteroidMap.super.addFrom(source, keys);</span>
+  }
+
+  @Override
+  public SMap addFrom(Map&lt;String, Object&gt; source, Collection&lt;String&gt; keys) {
+<span class="fc" id="L169">    return (SMap) SteroidMap.super.addFrom(source, keys);</span>
+  }
+
+  @Override
+  public SMap renameKey(String oldKey, String newKey) {
+<span class="fc" id="L174">    return (SMap) SteroidMap.super.renameKey(oldKey, newKey);</span>
+  }
+
+  @Override
+  public SMap del(String... keys) {
+<span class="fc" id="L179">    return (SMap) SteroidMap.super.del(keys);</span>
+  }
+
+  @Override
+  public SMap del(Collection&lt;String&gt; keys) {
+<span class="fc" id="L184">    return (SMap) SteroidMap.super.del(keys);</span>
+  }
+
+  @Override
+  public SMap del(Stream&lt;String&gt; keys) {
+<span class="fc" id="L189">    return (SMap) SteroidMap.super.del(keys);</span>
+  }
+
+  @Override
+  public SMap subMap(String... keys) {
+<span class="fc" id="L194">    return (SMap) SteroidMap.super.subMap(keys);</span>
+  }
+
+  @Override
+  public SMap subMap(Collection&lt;String&gt; keys) {
+<span class="fc" id="L199">    return (SMap) SteroidMap.super.subMap(keys);</span>
+  }
+
+  @Override
+  public SMap subMap(Map&lt;String, Object&gt; backingMap, String... keys) {
+<span class="fc" id="L204">    return (SMap) SteroidMap.super.subMap(backingMap, keys);</span>
+  }
+
+  @Override
+  public SMap subMap(Map&lt;String, Object&gt; backingMap, Collection&lt;String&gt; keys) {
+<span class="fc" id="L209">    return (SMap) SteroidMap.super.subMap(backingMap, keys);</span>
+  }
+
+  @Override
+  public SMap map(String key, SteroidMap&lt;String&gt; defaultValue) {
+<span class="fc" id="L214">    return (SMap) SteroidMap.super.map(key, defaultValue);</span>
+  }
+
+  @Override
+  public Stream&lt;SMap&gt; maps(String key) {
+<span class="fc" id="L219">    return SteroidMap.super.maps(key).map(s -&gt; (SMap) s);</span>
+  }
+
+  @Override
+  public Stream&lt;SMap&gt; maps(String key, Stream&lt;? extends SteroidMap&lt;String&gt;&gt; defaultValue) {
+<span class="fc" id="L224">    return SteroidMap.super.maps(key, defaultValue).map(s -&gt; (SMap) s);</span>
+  }
+
+  @Override
+  public SMap copy() {
+<span class="fc" id="L229">    return new SMap().addAll(this);</span>
+  }
+
+  /* GENERATED DELEGATE METHODS */
+
+  @Override
+  public void clear() {
+<span class="nc" id="L236">    map.clear();</span>
+<span class="nc" id="L237">  }</span>
+
+  @Override
+  public Object compute(String key, BiFunction&lt;? super String, ? super Object, ?&gt; remappingFunction) {
+<span class="nc" id="L241">    return map.compute(key, remappingFunction);</span>
+  }
+
+  @Override
+  public Object computeIfAbsent(String key, Function&lt;? super String, ?&gt; mappingFunction) {
+<span class="nc" id="L246">    return map.computeIfAbsent(key, mappingFunction);</span>
+  }
+
+  @Override
+  public Object computeIfPresent(String key, BiFunction&lt;? super String, ? super Object, ?&gt; remappingFunction) {
+<span class="nc" id="L251">    return map.computeIfPresent(key, remappingFunction);</span>
+  }
+
+  @Override
+  public boolean containsKey(Object key) {
+<span class="fc" id="L256">    return map.containsKey(key);</span>
+  }
+
+  @Override
+  public boolean containsValue(Object value) {
+<span class="nc" id="L261">    return map.containsValue(value);</span>
+  }
+
+  @Override
+  public Set&lt;Entry&lt;String, Object&gt;&gt; entrySet() {
+<span class="nc" id="L266">    return map.entrySet();</span>
+  }
+
+  @Override
+  public boolean equals(Object o) {
+<span class="fc" id="L271">    return map.equals(o);</span>
+  }
+
+  @Override
+  public void forEach(BiConsumer&lt;? super String, ? super Object&gt; action) {
+<span class="fc" id="L276">    map.forEach(action);</span>
+<span class="fc" id="L277">  }</span>
+
+  @Override
+  public Object get(Object key) {
+<span class="fc" id="L281">    return map.get(key);</span>
+  }
+
+  @Override
+  public Object getOrDefault(Object key, Object defaultValue) {
+<span class="nc" id="L286">    return map.getOrDefault(key, defaultValue);</span>
+  }
+
+  @Override
+  public int hashCode() {
+<span class="nc" id="L291">    return map.hashCode();</span>
+  }
+
+  @Override
+  public boolean isEmpty() {
+<span class="nc" id="L296">    return map.isEmpty();</span>
+  }
+
+  @Override
+  public Set&lt;String&gt; keySet() {
+<span class="fc" id="L301">    return map.keySet();</span>
+  }
+
+  @Override
+  public Object merge(String key, Object value, BiFunction&lt;? super Object, ? super Object, ?&gt; remappingFunction) {
+<span class="nc" id="L306">    return map.merge(key, value, remappingFunction);</span>
+  }
+
+  @Override
+  public Object put(String key, Object value) {
+<span class="fc" id="L311">    return map.put(key, value);</span>
+  }
+
+  @Override
+  public void putAll(Map&lt;? extends String, ?&gt; m) {
+<span class="nc" id="L316">    map.putAll(m);</span>
+<span class="nc" id="L317">  }</span>
+
+  @Override
+  public Object putIfAbsent(String key, Object value) {
+<span class="nc" id="L321">    return map.putIfAbsent(key, value);</span>
+  }
+
+  @Override
+  public Object remove(Object key) {
+<span class="fc" id="L326">    return map.remove(key);</span>
+  }
+
+  @Override
+  public boolean remove(Object key, Object value) {
+<span class="nc" id="L331">    return map.remove(key, value);</span>
+  }
+
+  @Override
+  public boolean replace(String key, Object oldValue, Object newValue) {
+<span class="nc" id="L336">    return map.replace(key, oldValue, newValue);</span>
+  }
+
+  @Override
+  public Object replace(String key, Object value) {
+<span class="nc" id="L341">    return map.replace(key, value);</span>
+  }
+
+  @Override
+  public void replaceAll(BiFunction&lt;? super String, ? super Object, ?&gt; function) {
+<span class="nc" id="L346">    map.replaceAll(function);</span>
+<span class="nc" id="L347">  }</span>
+
+  @Override
+  public int size() {
+<span class="fc" id="L351">    return map.size();</span>
+  }
+
+  @Override
+  public Collection&lt;Object&gt; values() {
+<span class="nc" id="L356">    return map.values();</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="nc" id="L361">    return map.toString();</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
